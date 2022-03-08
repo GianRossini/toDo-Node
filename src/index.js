@@ -76,7 +76,19 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+
+  const { id } = request.query;
+
+  const toDo = user.todos.find(toDo => toDo.id === id);
+
+  if (!toDo) {
+    return response.status(404).json({ error: "To Do does not exist." });
+  }
+
+  user.todos.splice(toDo, 1);
+
+  return response.status(204).send();
 });
 
 module.exports = app;
