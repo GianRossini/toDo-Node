@@ -72,13 +72,29 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+
+  const { id } = request.params;
+
+  console.log(id);
+
+  const toDoIndex = user.todos.findIndex(toDo => toDo.id === id);
+
+  console.log(toDoIndex);
+
+  if (toDoIndex === -1) {
+    return response.status(404).json({ error: "To Do does not exist." });
+  }
+
+  user.todos[toDoIndex].done = true;
+
+  return response.status(200).json(user.todos[toDoIndex]);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { user } = request;
 
-  const { id } = request.query;
+  const { id } = request.params;
 
   const toDo = user.todos.find(toDo => toDo.id === id);
 
