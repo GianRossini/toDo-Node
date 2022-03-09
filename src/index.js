@@ -15,9 +15,7 @@ function checksExistsUserAccount(request, response, next) {
 
   const user = users.find(user => user.username === username);
 
-  if(!user) {
-    return response.status(404).json({ error: "User doesn't exist." });
-  }
+  if(!user) response.status(404).json({ error: "User doesn't exist." });
 
   request.user = user;
 
@@ -51,7 +49,6 @@ app.post('/users', (request, response) => {
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
   const { title, deadline } = request.body;
-
   const { user } = request;
 
   const todo = {
@@ -68,23 +65,26 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+  const { title } = request.body;
+
+  const toDoIndex = user.todos.findIndex(toDo => toDo.id === id);
+
+  if (toDoIndex === -1) response.status(404).json({ error: "To Do does not exist." });
+
+  user.todos[toDoIndex].title = title;
+
+  return response.status(200).json(user.todos[toDoIndex]);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
   const { user } = request;
-
   const { id } = request.params;
-
-  console.log(id);
 
   const toDoIndex = user.todos.findIndex(toDo => toDo.id === id);
 
-  console.log(toDoIndex);
-
-  if (toDoIndex === -1) {
-    return response.status(404).json({ error: "To Do does not exist." });
-  }
+  if (toDoIndex === -1) response.status(404).json({ error: "To Do does not exist." });
 
   user.todos[toDoIndex].done = true;
 
@@ -93,14 +93,11 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { user } = request;
-
   const { id } = request.params;
 
   const toDo = user.todos.find(toDo => toDo.id === id);
 
-  if (!toDo) {
-    return response.status(404).json({ error: "To Do does not exist." });
-  }
+  if (!toDo) response.status(404).json({ error: "To Do does not exist." });
 
   user.todos.splice(toDo, 1);
 
